@@ -5,6 +5,7 @@ import '../core/app_theme.dart';
 import '../core/audio_controller.dart';
 import '../core/page_route.dart';
 import '../core/skin.dart';
+import '../data/daily.dart';
 import '../data/skins_data.dart';
 import '../data/stages_data.dart';
 import '../state/providers.dart';
@@ -46,8 +47,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final skin = ref.watch(skinProvider);
     final progress = ref.watch(progressProvider);
     final audio = ref.watch(audioProvider);
+    final saved = ref.watch(savedRunProvider);
     final continueStage = progress.continueStage;
-    final started = progress.hasStarted();
+    final started = progress.hasStarted() || saved != null;
+
+    // A run left open by a previous session is what "Continue" means; without
+    // one it falls back to the furthest stage the ladder has opened.
+    final resumeStage = saved?.stage ?? continueStage;
+    final seed = todaysSeed();
 
     void go(Widget screen) {
       audio.play(Sfx.tap);
@@ -93,10 +100,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           skin: skin,
                           lines: started
                               ? [
-                                  'NEXT — ${continueStage.name}',
+                                  saved != null
+                                      ? 'RESUME — ${resumeStage.name}'
+                                      : 'NEXT — ${continueStage.name}',
                                   'BEST ${progress.highScore}   ·   '
                                       '${progress.clearedCount} OF '
-                                      '${kStages.length} CLEARED',
+                                      '${kStages.length} CLEARED   ·   '
+                                      '${progress.medalCount} MEDALS',
                                 ]
                               : [
                                   '${kStages.length} STAGES   ·   '
@@ -104,15 +114,26 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                 ],
                         ),
                         const Spacer(),
+                        _DailyCard(
+                          skin: skin,
+                          best: progress.bestForDay(seed),
+                          onTap: () =>
+                              go(const GameScreen(stageId: kDailyStageId)),
+                        ),
+                        const SizedBox(height: 10),
                         PillButton(
-                          label: started ? 'Continue' : 'Play',
+                          label: saved != null
+                              ? 'Resume'
+                              : started
+                              ? 'Continue'
+                              : 'Play',
                           icon: Icons.play_arrow_rounded,
                           skin: skin,
                           expand: true,
                           onPressed: () => go(
                             GameScreen(
                               stageId: started
-                                  ? continueStage.id
+                                  ? resumeStage.id
                                   : kStages.first.id,
                             ),
                           ),
@@ -201,6 +222,55 @@ class _Hero extends StatelessWidget {
                 color: i.isEven ? skin.accent : skin.accentSoft,
               ),
             ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Today's challenge, offered above the campaign because it expires.
+class _DailyCard extends StatelessWidget {
+  const _DailyCard({
+    required this.skin,
+    required this.best,
+    required this.onTap,
+  });
+
+  final Skin skin;
+  final int best;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return RisoCard(
+      color: skin.boardSurface,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      onTap: onTap,
+      child: Row(
+        children: [
+          Icon(Icons.today_rounded, size: 20, color: skin.accent),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'DAILY CHALLENGE',
+                  style: AppType.body.copyWith(color: skin.onStage),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  best > 0
+                      ? 'TODAY\'S BEST $best'
+                      : '${dailyLabel(DateTime.now())} — NOT PLAYED YET',
+                  style: AppType.monoLabel.copyWith(
+                    color: skin.onStage.withValues(alpha: 0.7),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Icon(Icons.chevron_right_rounded, color: skin.accent),
         ],
       ),
     );

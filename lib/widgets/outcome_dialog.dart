@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import '../core/app_theme.dart';
 import '../core/constants.dart';
 import '../core/skin.dart';
+import '../models/medal.dart';
 import '../models/stage.dart';
 import 'confetti_overlay.dart';
+import 'medal_row.dart';
 import 'ui_kit.dart';
 
 /// What the player can do from an end-of-attempt panel.
@@ -30,6 +32,8 @@ class OutcomeDialog extends StatefulWidget {
     required this.onAction,
     required this.lostToMoveLimit,
     this.stageSelectLabel = 'Stage select',
+    this.medals = const {},
+    this.freshMedals = const {},
   });
 
   final Skin skin;
@@ -54,6 +58,12 @@ class OutcomeDialog extends StatefulWidget {
   /// Label for the secondary way out — the campaign ladder for a stage, the
   /// board picker for an endless run.
   final String stageSelectLabel;
+
+  /// Every medal the stage holds now, including ones earned long ago.
+  final Set<Medal> medals;
+
+  /// The subset this attempt just added, called out in the unlocks card.
+  final Set<Medal> freshMedals;
 
   final ValueChanged<OutcomeAction> onAction;
 
@@ -180,7 +190,17 @@ class _OutcomeDialogState extends State<OutcomeDialog>
               ),
             ],
           ),
-          if (widget.nextStage != null || widget.unlockedSkinNames.isNotEmpty)
+          if (widget.medals.isNotEmpty) ...[
+            const SizedBox(height: 14),
+            MedalRow(
+              earned: widget.medals,
+              color: skin.onStage,
+              showLabels: true,
+            ),
+          ],
+          if (widget.nextStage != null ||
+              widget.unlockedSkinNames.isNotEmpty ||
+              widget.freshMedals.isNotEmpty)
             ..._unlocks(skin),
           const SizedBox(height: AppSpacing.s20),
           if (widget.won && widget.nextStage != null)
@@ -234,6 +254,7 @@ class _OutcomeDialogState extends State<OutcomeDialog>
       if (widget.nextStage != null)
         'STAGE UNLOCKED — ${widget.nextStage!.name}',
       for (final name in widget.unlockedSkinNames) 'SKIN UNLOCKED — $name',
+      for (final medal in widget.freshMedals) 'MEDAL — ${medal.label}',
     ];
     return [
       const SizedBox(height: 10),

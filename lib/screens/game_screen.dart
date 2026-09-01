@@ -281,8 +281,14 @@ class _Outcome extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final notifier = ref.read(gameProvider(stageId).notifier);
+    final progress = ref.watch(progressProvider);
     final won = game.status == GameStatus.won;
     final next = nextStageAfter(stageId);
+
+    // The attempt was recorded before this panel was built, so the stage's
+    // medals already include anything this run just earned.
+    final medals = progress.medalsFor(stageId);
+    final freshMedals = progress.newlyEarnedMedals;
 
     // The attempt has already been recorded, so anything gated on exactly this
     // many cleared stages is what this clear just opened up.
@@ -334,6 +340,8 @@ class _Outcome extends ConsumerWidget {
       stageSelectLabel: isCampaignStage(stageId)
           ? 'Stage select'
           : 'Endless boards',
+      medals: medals,
+      freshMedals: freshMedals,
       onAction: act,
     );
   }

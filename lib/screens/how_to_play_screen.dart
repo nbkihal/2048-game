@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/app_theme.dart';
+import '../core/constants.dart';
 import '../core/audio_controller.dart';
 import '../core/skin.dart';
 import '../data/skins_data.dart';
@@ -26,7 +27,7 @@ class HowToPlayScreen extends ConsumerStatefulWidget {
 }
 
 class _HowToPlayScreenState extends ConsumerState<HowToPlayScreen> {
-  static const _count = 5;
+  static const _count = 6;
 
   final _pages = PageController();
   int _index = 0;
@@ -134,8 +135,9 @@ class _HowToPlayScreenState extends ConsumerState<HowToPlayScreen> {
                       'EVERY STAGE ASKS FOR ONE TILE — '
                           '${kStages.first.targetTile} FIRST, THEN HIGHER. '
                           'BUILD IT AND THE STAGE IS CLEARED.',
-                      'LATER STAGES ADD TWISTS: A SMALLER BOARD, A MOVE '
-                          'BUDGET, A FROZEN CELL.',
+                      'LATER STAGES ADD TWISTS: SMALLER AND BIGGER BOARDS, '
+                          'MOVE BUDGETS, FROZEN CELLS, A TICKING BOMB TILE, '
+                          'AND A BOARD THAT TURNS UNDER YOU.',
                     ],
                     visual: _TargetVisual(skin: skin),
                   ),
@@ -149,6 +151,19 @@ class _HowToPlayScreenState extends ConsumerState<HowToPlayScreen> {
                           'TAP UNDO AND TAKE THE MOVE BACK.',
                     ],
                     visual: _GameOverVisual(skin: skin),
+                  ),
+                  _Card(
+                    skin: skin,
+                    title: 'TOOLS',
+                    lines: const [
+                      'EVERY RUN COMES WITH $kUndoAllowance UNDOS, '
+                          '$kHammerAllowance HAMMER AND $kShuffleAllowance '
+                          'SHUFFLE. THEY DO NOT COST A MOVE, AND THEY DO NOT '
+                          'COME BACK UNTIL YOU RESTART.',
+                      'CLEAR A STAGE UNDER PAR, OR WITHOUT SPENDING AN UNDO, '
+                          'AND IT KEEPS THE MEDAL FOR GOOD.',
+                    ],
+                    visual: _ToolsVisual(skin: skin),
                   ),
                   _Card(
                     skin: skin,
@@ -577,6 +592,62 @@ class _UnlockVisual extends StatelessWidget {
                     color: skin.onStage.withValues(alpha: 0.7),
                   ),
                 ),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _ToolsVisual extends StatelessWidget {
+  const _ToolsVisual({required this.skin});
+
+  final Skin skin;
+
+  static const _tools = [
+    (Icons.undo_rounded, 'UNDO', kUndoAllowance, 'TAKE THE MOVE BACK'),
+    (Icons.gavel_rounded, 'HAMMER', kHammerAllowance, 'SMASH ONE TILE'),
+    (Icons.shuffle_rounded, 'SHUFFLE', kShuffleAllowance, 'RE-DEAL THE BOARD'),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (final (icon, name, count, blurb) in _tools)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: Row(
+              children: [
+                Container(
+                  width: 38,
+                  height: 38,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: skin.onStage, width: 2),
+                    borderRadius: AppRadius.pillRadius,
+                  ),
+                  child: Icon(icon, size: 18, color: skin.onStage),
+                ),
+                const SizedBox(width: 12),
+                SizedBox(
+                  width: 74,
+                  child: Text(
+                    name,
+                    style: AppType.monoLabel.copyWith(color: skin.onStage),
+                  ),
+                ),
+                Expanded(
+                  child: Text(
+                    blurb,
+                    style: AppType.monoLabel.copyWith(
+                      color: skin.onStage.withValues(alpha: 0.7),
+                    ),
+                  ),
+                ),
+                MonoTag(label: '×$count', color: skin.accent),
               ],
             ),
           ),

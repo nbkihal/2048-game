@@ -6,9 +6,11 @@ import '../core/audio_controller.dart';
 import '../core/page_route.dart';
 import '../core/skin.dart';
 import '../data/stages_data.dart';
+import '../models/medal.dart';
 import '../models/stage.dart';
 import '../state/providers.dart';
 import '../state/stage_progress.dart';
+import '../widgets/medal_row.dart';
 import '../widgets/ui_kit.dart';
 import 'game_screen.dart';
 
@@ -79,6 +81,7 @@ class StageSelectScreen extends ConsumerWidget {
                     isNext: stage.id == furthest.id &&
                         !progress.isCleared(stage.id),
                     bestScore: progress.bestScoreFor(stage.id),
+                    medals: progress.medalsFor(stage.id),
                     requirement: _requirement(stage, progress),
                     onTap: () {
                       audio.play(Sfx.tap);
@@ -114,6 +117,7 @@ class _StageCard extends StatelessWidget {
     required this.cleared,
     required this.isNext,
     required this.bestScore,
+    required this.medals,
     required this.requirement,
     required this.onTap,
   });
@@ -124,6 +128,7 @@ class _StageCard extends StatelessWidget {
   final bool cleared;
   final bool isNext;
   final int bestScore;
+  final Set<Medal> medals;
   final String requirement;
   final VoidCallback onTap;
 
@@ -194,6 +199,10 @@ class _StageCard extends StatelessWidget {
                         ),
                     ],
                   ),
+                  if (unlocked) ...[
+                    const SizedBox(height: 12),
+                    MedalRow(earned: medals, color: ink),
+                  ],
                 ],
               ),
             ),
