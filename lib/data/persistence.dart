@@ -14,6 +14,10 @@ class Persistence {
   static const _keyHapticsOn = 'hapticsOn';
   static const _keySkinId = 'themeId';
   static const _keyIntroSeen = 'introSeen';
+  static const _keyMedalsPrefix = 'medals_stage_';
+  static const _keySavedRun = 'savedRun';
+  static const _keyDailySeed = 'dailySeed';
+  static const _keyDailyBest = 'dailyBest';
 
   final SharedPreferences _prefs;
 
@@ -64,6 +68,43 @@ class Persistence {
 
   Future<void> setIntroSeen(bool value) => _prefs.setBool(_keyIntroSeen, value);
 
+  // --- medals --------------------------------------------------------------
+
+  /// Medals earned on a stage, packed as a bitmask. Medals accumulate: a later
+  /// sloppy clear never takes one back.
+  int medalsForStage(int stageId) =>
+      _prefs.getInt('$_keyMedalsPrefix$stageId') ?? 0;
+
+  Future<void> setMedalsForStage(int stageId, int bits) =>
+      _prefs.setInt('$_keyMedalsPrefix$stageId', bits);
+
+  // --- the run in progress -------------------------------------------------
+
+  /// The last committed board, as JSON, or `null` when no run is open.
+  ///
+  /// Only committed snapshots land here — never mid-animation state — so a
+  /// force-close always resumes on a board the player actually saw.
+  String? get savedRun => _prefs.getString(_keySavedRun);
+
+  Future<void> setSavedRun(String json) =>
+      _prefs.setString(_keySavedRun, json);
+
+  Future<void> clearSavedRun() => _prefs.remove(_keySavedRun);
+
+  // --- daily challenge -----------------------------------------------------
+
+  /// Best score on the daily board identified by [seed]. A new day reports 0
+  /// rather than carrying yesterday's number forward.
+  int dailyBestFor(int seed) =>
+      _prefs.getInt(_keyDailySeed) == seed
+      ? (_prefs.getInt(_keyDailyBest) ?? 0)
+      : 0;
+
+  Future<void> setDailyBest(int seed, int score) async {
+    await _prefs.setInt(_keyDailySeed, seed);
+    await _prefs.setInt(_keyDailyBest, score);
+  }
+
   // --- reset ---------------------------------------------------------------
 
   /// Clears progress and settings. Used by the Settings screen.
@@ -75,7 +116,11 @@ class Persistence {
           k == _keySoundOn ||
           k == _keyHapticsOn ||
           k == _keySkinId ||
-          k.startsWith(_keyBestScorePrefix),
+          k == _keySavedRun ||
+          k == _keyDailySeed ||
+          k == _keyDailyBest ||
+          k.startsWith(_keyBestScorePrefix) ||
+          k.startsWith(_keyMedalsPrefix),
     );
     for (final key in keys.toList()) {
       await _prefs.remove(key);
