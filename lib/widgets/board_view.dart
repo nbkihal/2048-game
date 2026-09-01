@@ -21,6 +21,8 @@ class BoardView extends StatefulWidget {
     required this.skin,
     required this.mergedAwayTiles,
     this.dimmed = false,
+    this.picking = false,
+    this.onTileTap,
   });
 
   final Board board;
@@ -35,6 +37,12 @@ class BoardView extends StatefulWidget {
 
   /// Greys the board out while the pause menu is up.
   final bool dimmed;
+
+  /// The hammer is armed, so every tile on the board is a target.
+  final bool picking;
+
+  /// Called with the tile the player picked while [picking].
+  final ValueChanged<Tile>? onTileTap;
 
   @override
   State<BoardView> createState() => _BoardViewState();
@@ -135,6 +143,10 @@ class _BoardViewState extends State<BoardView> {
                       top: offset(tile.row),
                       cell: cell,
                       ghost: false,
+                      picking: widget.picking,
+                      onTap: widget.picking && widget.onTileTap != null
+                          ? () => widget.onTileTap!(tile)
+                          : null,
                     ),
                 ],
               ),
@@ -189,6 +201,8 @@ class _PositionedTile extends StatelessWidget {
     required this.top,
     required this.cell,
     required this.ghost,
+    this.picking = false,
+    this.onTap,
   });
 
   final Tile tile;
@@ -197,9 +211,18 @@ class _PositionedTile extends StatelessWidget {
   final double top;
   final double cell;
   final bool ghost;
+  final bool picking;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
+    final view = TileView(
+      tile: tile,
+      skin: skin,
+      size: cell,
+      picking: picking,
+    );
+
     return AnimatedPositioned(
       duration: kSlideDuration,
       curve: Curves.easeOutCubic,
@@ -211,7 +234,13 @@ class _PositionedTile extends StatelessWidget {
         // The ghost fades as it arrives so the merge reads as absorption.
         opacity: ghost ? 0 : 1,
         duration: kSlideDuration,
-        child: TileView(tile: tile, skin: skin, size: cell),
+        child: onTap == null
+            ? view
+            : GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: onTap,
+                child: view,
+              ),
       ),
     );
   }

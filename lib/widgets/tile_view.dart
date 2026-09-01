@@ -16,11 +16,16 @@ class TileView extends StatefulWidget {
     required this.tile,
     required this.skin,
     required this.size,
+    this.picking = false,
   });
 
   final Tile tile;
   final Skin skin;
   final double size;
+
+  /// The hammer is armed and this tile is a legal target, so it advertises
+  /// itself as tappable.
+  final bool picking;
 
   @override
   State<TileView> createState() => _TileViewState();
@@ -96,24 +101,87 @@ class _TileViewState extends State<TileView> with SingleTickerProviderStateMixin
     final style = widget.skin.styleFor(widget.tile.value);
     final label = widget.tile.value.toString();
 
+    final fuse = widget.tile.fuse;
+    // A bomb has to be findable at a glance on a busy board, so it takes a red
+    // edge on top of whatever colour its value earned it.
+    final border = widget.picking
+        ? Border.all(color: widget.skin.accent, width: 3)
+        : fuse != null
+        ? Border.all(color: AppColors.firecrackerRed, width: 3)
+        : null;
+
     return ScaleTransition(
       scale: _scale,
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: style.background,
           borderRadius: AppRadius.cardRadius,
+          border: border,
         ),
-        child: Center(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: widget.size * 0.06),
-            child: FittedBox(
-              child: Text(
-                label,
-                maxLines: 1,
-                style: AppType.tile(widget.size, label.length).copyWith(
-                  color: style.foreground,
+        child: Stack(
+          children: [
+            Center(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: widget.size * 0.06),
+                child: FittedBox(
+                  child: Text(
+                    label,
+                    maxLines: 1,
+                    style: AppType.tile(
+                      widget.size,
+                      label.length,
+                    ).copyWith(color: style.foreground),
+                  ),
                 ),
               ),
+            ),
+            if (fuse != null)
+              Positioned(
+                top: widget.size * 0.04,
+                right: widget.size * 0.04,
+                child: _Fuse(count: fuse, size: widget.size),
+              ),
+            if (widget.picking)
+              Center(
+                child: Icon(
+                  Icons.close_rounded,
+                  size: widget.size * 0.4,
+                  color: widget.skin.accent,
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// The moves a bomb has left, stamped in its corner.
+class _Fuse extends StatelessWidget {
+  const _Fuse({required this.count, required this.size});
+
+  final int count;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    final diameter = size * 0.36;
+    return Container(
+      width: diameter,
+      height: diameter,
+      alignment: Alignment.center,
+      decoration: const BoxDecoration(
+        color: AppColors.firecrackerRed,
+        shape: BoxShape.circle,
+      ),
+      child: FittedBox(
+        child: Padding(
+          padding: const EdgeInsets.all(2),
+          child: Text(
+            '$count',
+            style: AppType.monoLabel.copyWith(
+              color: AppColors.boneWhite,
+              height: 1.0,
             ),
           ),
         ),

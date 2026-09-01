@@ -10,14 +10,17 @@ import '../data/stages_data.dart';
 import '../logic/game_rules.dart';
 import '../models/direction.dart';
 import '../models/game_status.dart';
+import '../models/game_tool.dart';
 import '../state/game_state.dart';
 import '../state/providers.dart';
 import '../widgets/board_view.dart';
 import '../widgets/outcome_dialog.dart';
 import '../widgets/pause_menu.dart';
 import '../widgets/score_board.dart';
+import '../widgets/score_popup.dart';
 import '../widgets/swipe_detector.dart';
 import '../widgets/target_banner.dart';
+import '../widgets/tool_bar.dart';
 import '../widgets/ui_kit.dart';
 import 'endless_screen.dart';
 import 'settings_screen.dart';
@@ -62,6 +65,10 @@ class GameScreen extends ConsumerWidget {
                 onUndo: notifier.canUndo ? notifier.undo : null,
                 onPause: notifier.pause,
                 onBack: leave,
+                onHammer: notifier.armHammer,
+                onShuffle: notifier.useShuffle,
+                onHammerTarget: notifier.useHammer,
+                onDisarm: notifier.disarmTool,
               ),
               if (game.isPaused)
                 Positioned.fill(
@@ -115,6 +122,10 @@ class _GameBody extends StatelessWidget {
     required this.onUndo,
     required this.onPause,
     required this.onBack,
+    required this.onHammer,
+    required this.onShuffle,
+    required this.onHammerTarget,
+    required this.onDisarm,
   });
 
   final int stageId;
@@ -124,6 +135,10 @@ class _GameBody extends StatelessWidget {
   final VoidCallback? onUndo;
   final VoidCallback onPause;
   final VoidCallback onBack;
+  final VoidCallback onHammer;
+  final VoidCallback onShuffle;
+  final ValueChanged<int> onHammerTarget;
+  final VoidCallback onDisarm;
 
   @override
   Widget build(BuildContext context) {
@@ -193,7 +208,20 @@ class _GameBody extends StatelessWidget {
             progress: targetProgress(game.board, stage.targetTile),
             stageLabel: stageLabel(stage),
           ),
-          const SizedBox(height: AppSpacing.elementGap),
+          const SizedBox(height: 10),
+          // The popup sits in its own fixed-height strip rather than over the
+          // board, so a merge never covers the tiles it came from.
+          SizedBox(
+            height: 26,
+            child: Center(
+              child: ScorePopup(
+                skin: skin,
+                gain: game.lastGain,
+                mergeCount: game.lastMergeCount,
+                serial: game.moveSerial,
+              ),
+            ),
+          ),
           Expanded(
             child: Center(
               child: SwipeDetector(
@@ -204,35 +232,31 @@ class _GameBody extends StatelessWidget {
                   skin: skin,
                   mergedAwayTiles: game.mergedAwayTiles,
                   dimmed: game.isPaused,
+                  picking: game.armedTool == GameTool.hammer,
+                  onTileTap: (tile) => onHammerTarget(tile.id),
                 ),
               ),
             ),
           ),
           const SizedBox(height: AppSpacing.elementGap),
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedActionButton(
-                  label: 'Undo',
-                  icon: Icons.undo_rounded,
-                  skin: skin,
-                  expand: true,
-                  color: skin.onStage,
-                  onPressed: game.acceptsInput ? onUndo : null,
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: OutlinedActionButton(
-                  label: 'Pause',
-                  icon: Icons.pause_rounded,
-                  skin: skin,
-                  expand: true,
-                  onPressed: onPause,
-                ),
-              ),
-            ],
-          ),
+          if (game.armedTool == GameTool.hammer)
+            PickPrompt(skin: skin, onCancel: onDisarm)
+          else
+            ToolBar(
+              skin: skin,
+              undosLeft: game.undosLeft,
+              hammersLeft: game.hammersLeft,
+              shufflesLeft: game.shufflesLeft,
+              hammerArmed: false,
+              onUndo: game.acceptsInput ? onUndo : null,
+              onHammer: game.acceptsTools && game.hammersLeft > 0
+                  ? onHammer
+                  : null,
+              onShuffle: game.acceptsTools && game.shufflesLeft > 0
+                  ? onShuffle
+                  : null,
+              onPause: onPause,
+            ),
         ],
       ),
     );
