@@ -4,26 +4,31 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/audio_controller.dart';
 import '../core/constants.dart';
+import '../logic/board_ops.dart';
 import '../logic/game_engine.dart';
 import '../logic/game_rules.dart';
 import '../logic/spawn.dart';
 import '../models/board.dart';
 import '../models/direction.dart';
 import '../models/game_status.dart';
+import '../models/game_tool.dart';
 import '../models/position.dart';
 import '../models/stage.dart';
 import 'game_state.dart';
 
 /// Wires the pure logic in `logic/` to the UI.
 ///
-/// The notifier owns the two things the logic layer deliberately does not: the
-/// random source and the side effects (sound, haptics, score reporting).
+/// The notifier owns the three things the logic layer deliberately does not:
+/// the random source, the side effects (sound, haptics, score reporting) and
+/// the snapshot written to disk so a killed app can resume.
 class GameNotifier extends StateNotifier<GameState> {
   factory GameNotifier({
     required Stage stage,
     required int bestScore,
     required AudioController audio,
     required void Function(GameState state) onOutcome,
+    void Function(GameState state)? onSnapshot,
+    GameState? resumeFrom,
     Random? random,
   }) {
     final generator = random ?? Random();
@@ -31,7 +36,8 @@ class GameNotifier extends StateNotifier<GameState> {
       audio: audio,
       random: generator,
       onOutcome: onOutcome,
-      initial: _freshState(stage, bestScore, generator),
+      onSnapshot: onSnapshot,
+      initial: resumeFrom ?? _freshState(stage, bestScore, generator),
     );
   }
 
@@ -39,6 +45,7 @@ class GameNotifier extends StateNotifier<GameState> {
     required this.audio,
     required this.random,
     required this.onOutcome,
+    required this.onSnapshot,
     required GameState initial,
   }) : super(initial);
 
@@ -48,6 +55,9 @@ class GameNotifier extends StateNotifier<GameState> {
   /// Called once when an attempt ends, so progress can be persisted outside the
   /// notifier's own state.
   final void Function(GameState state) onOutcome;
+
+  /// Called after every committed change so the run can be resumed later.
+  final void Function(GameState state)? onSnapshot;
 
   /// Previous snapshots, most recent last. Bounded so a long game does not grow
   /// unbounded in memory.
@@ -81,13 +91,15 @@ class GameNotifier extends StateNotifier<GameState> {
     );
   }
 
-  bool get canUndo => _history.isNotEmpty;
+  bool get canUndo => _history.isNotEmpty && state.undosLeft > 0;
 
-  /// Starts the stage over with a fresh board.
+  /// Starts the stage over with a fresh board. Tools and rewinds come back with
+  /// it — the allowance is per attempt, not per stage.
   void restart() {
     _history.clear();
     state = _freshState(state.stage, state.displayBestScore, random);
     audio.play(Sfx.tap);
+    _snapshot();
   }
 
   void swipe(Direction direction) {
@@ -104,21 +116,42 @@ class GameNotifier extends StateNotifier<GameState> {
     _pushHistory();
 
     final movesUsed = state.movesUsed + 1;
-    final spawn = spawnTile(result.board, id: state.nextTileId, random: random);
-    final score = state.score + result.gainedScore;
+    final stage = state.stage;
+
+    // A fuse burns on the move, before the spawn: a bomb dropped this move
+    // gets its full count, and one already on the board loses a tick.
+    var board = tickFuses(result.board);
+
+    final spawn = spawnTile(board, id: state.nextTileId, random: random);
+    board = spawn.board;
+
+    // Keep exactly one bomb alive on a bomb stage, so the pressure is steady
+    // rather than a pile-up.
+    final bomb = spawn.tile;
+    if (stage.hasBomb && bomb != null && !hasArmedBomb(board)) {
+      board = armBomb(board, bomb.id, stage.bombFuse!);
+    }
+
+    final rotateEvery = stage.rotateEveryMoves;
+    if (rotateEvery != null && movesUsed % rotateEvery == 0) {
+      board = rotateBoardClockwise(board);
+    }
+
     final status = evaluateStatus(
-      board: spawn.board,
-      stage: state.stage,
+      board: board,
+      stage: stage,
       movesUsed: movesUsed,
     );
 
     state = state.copyWith(
-      board: spawn.board,
-      score: score,
+      board: board,
+      score: state.score + result.gainedScore,
       movesUsed: movesUsed,
       nextTileId: spawn.spawned ? state.nextTileId + 1 : state.nextTileId,
       mergedTileIds: result.mergedTileIds,
       mergedAwayTiles: result.mergedAwayTiles,
+      lastGain: result.gainedScore,
+      moveSerial: state.moveSerial + 1,
       // Winning again after "keep going" must not re-open the dialog.
       status: state.keptGoing && status == GameStatus.won
           ? GameStatus.playing
@@ -132,21 +165,98 @@ class GameNotifier extends StateNotifier<GameState> {
           : HapticStrength.medium,
     );
 
-    if (state.status.isOver) _finishAttempt();
+    if (state.status.isOver) {
+      _finishAttempt();
+    } else {
+      _snapshot();
+    }
   }
 
   /// Rewinds one move. The spawned tile disappears along with the merge, which
   /// is the behaviour players expect from an undo in this genre.
   void undo() {
-    if (_history.isEmpty || state.isPaused) return;
-    state = _history.removeLast();
+    if (!canUndo || state.isPaused) return;
+    final previous = _history.removeLast();
+    // The rewind spends a charge and stains the run: the board goes back, the
+    // fact that it was rewound does not.
+    state = previous.copyWith(
+      undosLeft: state.undosLeft - 1,
+      usedUndo: true,
+      hammersLeft: state.hammersLeft,
+      shufflesLeft: state.shufflesLeft,
+      disarmTool: true,
+    );
     audio.play(Sfx.tap);
     audio.haptic(HapticStrength.light);
+    _snapshot();
+  }
+
+  /// Puts the board into tile-picking mode for the hammer.
+  void armHammer() {
+    if (!state.acceptsTools || state.hammersLeft <= 0) return;
+    state = state.copyWith(armedTool: GameTool.hammer);
+    audio.play(Sfx.tap);
+  }
+
+  void disarmTool() {
+    if (state.armedTool == null) return;
+    state = state.copyWith(disarmTool: true);
+    audio.play(Sfx.tap);
+  }
+
+  /// Spends the hammer on one tile.
+  ///
+  /// A removal is not a move: it costs no move budget, burns no fuse and
+  /// spawns nothing. It can still open a jammed board, so the status is
+  /// re-evaluated afterwards.
+  void useHammer(int tileId) {
+    if (state.armedTool != GameTool.hammer || state.hammersLeft <= 0) return;
+
+    _pushHistory();
+    final board = removeTile(state.board, tileId);
+    state = state.copyWith(
+      board: board,
+      hammersLeft: state.hammersLeft - 1,
+      disarmTool: true,
+      mergedTileIds: const [],
+      mergedAwayTiles: const [],
+      status: evaluateStatus(
+        board: board,
+        stage: state.stage,
+        movesUsed: state.movesUsed,
+      ),
+    );
+    audio.play(Sfx.merge);
+    audio.haptic(HapticStrength.medium);
+    _afterToolUse();
+  }
+
+  /// Deals the same tiles back out across the board.
+  void useShuffle() {
+    if (!state.acceptsTools || state.shufflesLeft <= 0) return;
+
+    _pushHistory();
+    final board = shuffleTiles(state.board, random);
+    state = state.copyWith(
+      board: board,
+      shufflesLeft: state.shufflesLeft - 1,
+      disarmTool: true,
+      mergedTileIds: const [],
+      mergedAwayTiles: const [],
+      status: evaluateStatus(
+        board: board,
+        stage: state.stage,
+        movesUsed: state.movesUsed,
+      ),
+    );
+    audio.play(Sfx.spawn);
+    audio.haptic(HapticStrength.medium);
+    _afterToolUse();
   }
 
   void pause() {
     if (!state.status.isPlayable && !state.keptGoing) return;
-    state = state.copyWith(isPaused: true);
+    state = state.copyWith(isPaused: true, disarmTool: true);
     audio.play(Sfx.tap);
   }
 
@@ -162,6 +272,7 @@ class GameNotifier extends StateNotifier<GameState> {
       status: GameStatus.playing,
       outcomeAcknowledged: true,
     );
+    _snapshot();
   }
 
   /// Marks the current win/lose dialog as shown.
@@ -171,14 +282,26 @@ class GameNotifier extends StateNotifier<GameState> {
     }
   }
 
+  void _afterToolUse() {
+    if (state.status.isOver) {
+      _finishAttempt();
+    } else {
+      _snapshot();
+    }
+  }
+
   void _pushHistory() {
     _history.add(state);
     if (_history.length > kUndoHistoryLimit) _history.removeAt(0);
   }
 
+  void _snapshot() => onSnapshot?.call(state);
+
   void _finishAttempt() {
     audio.play(state.status == GameStatus.won ? Sfx.win : Sfx.lose);
     audio.haptic(HapticStrength.heavy);
     onOutcome(state);
+    // A finished attempt is not resumable; the listener clears the saved run.
+    _snapshot();
   }
 }

@@ -72,3 +72,27 @@ const double kBoardPaddingRatio = 0.09;
 /// How long an absorbed tile stays on screen sliding into its merge target
 /// before it is dropped from the widget tree.
 const Duration kGhostLifetime = Duration(milliseconds: 150);
+
+// ---------------------------------------------------------------------------
+// Power-ups
+// ---------------------------------------------------------------------------
+
+/// Rewinds granted per attempt. Undo is deliberately scarce: unlimited rewinds
+/// mean a run can never actually be lost, which cancels the game-over screen.
+const int kUndoAllowance = 3;
+
+/// Tile removals granted per attempt.
+const int kHammerAllowance = 1;
+
+/// Board re-deals granted per attempt.
+const int kShuffleAllowance = 1;
+
+// ---------------------------------------------------------------------------
+// Score popup
+// ---------------------------------------------------------------------------
+
+/// How long a "+128" floats above the board before it is gone.
+const Duration kScorePopupDuration = Duration(milliseconds: 900);
+
+/// Merges in one swipe before the popup calls it a chain.
+const int kChainThreshold = 2;

@@ -137,3 +137,26 @@ class Board {
   @override
   String toString() => toValues().map((row) => row.join('\t')).join('\n');
 }
+
+/// Board serialisation, used to resume a run after the app is killed.
+extension BoardJson on Board {
+  Map<String, dynamic> toJson() => {
+    's': size,
+    'b': blockedIndices.toList()..sort(),
+    't': [for (final tile in tiles) tile.toJson()],
+  };
+
+  static Board fromJson(Map<String, dynamic> json) {
+    final size = json['s'] as int;
+    final cells = List<Tile?>.filled(size * size, null);
+    for (final entry in json['t'] as List) {
+      final tile = Tile.fromJson(Map<String, dynamic>.from(entry as Map));
+      cells[tile.row * size + tile.col] = tile;
+    }
+    return Board(
+      size: size,
+      cells: cells,
+      blockedIndices: {for (final i in json['b'] as List) i as int},
+    );
+  }
+}

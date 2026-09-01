@@ -9,6 +9,7 @@ import '../data/skins_data.dart';
 import '../data/stages_data.dart';
 import '../state/providers.dart';
 import '../widgets/ui_kit.dart';
+import 'endless_screen.dart';
 import 'game_screen.dart';
 import 'how_to_play_screen.dart';
 import 'settings_screen.dart';
@@ -117,12 +118,29 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           ),
                         ),
                         const SizedBox(height: 10),
-                        OutlinedActionButton(
-                          label: 'Stages',
-                          icon: Icons.grid_view_rounded,
-                          skin: skin,
-                          expand: true,
-                          onPressed: () => go(const StageSelectScreen()),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: OutlinedActionButton(
+                                label: 'Stages',
+                                icon: Icons.grid_view_rounded,
+                                skin: skin,
+                                expand: true,
+                                onPressed: () => go(const StageSelectScreen()),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: OutlinedActionButton(
+                                label: 'Endless',
+                                icon: Icons.all_inclusive_rounded,
+                                skin: skin,
+                                expand: true,
+                                color: skin.onStage,
+                                onPressed: () => go(const EndlessScreen()),
+                              ),
+                            ),
+                          ],
                         ),
                         const SizedBox(height: AppSpacing.sectionGap),
                         Row(

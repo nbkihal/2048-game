@@ -12,13 +12,20 @@ class Stage {
     this.moveLimit,
     this.blockedCells = const [],
     this.randomBlockedCells = 0,
+    this.bombFuse,
+    this.rotateEveryMoves,
     this.unlockedByDefault = false,
   }) : assert(gridSize > 1, 'a stage needs at least a 2x2 board'),
        assert(
          moveLimit == null || moveLimit > 0,
          'a move limit must be positive',
        ),
-       assert(randomBlockedCells >= 0, 'blocked cell count cannot be negative');
+       assert(randomBlockedCells >= 0, 'blocked cell count cannot be negative'),
+       assert(bombFuse == null || bombFuse > 1, 'a fuse needs room to burn'),
+       assert(
+         rotateEveryMoves == null || rotateEveryMoves > 1,
+         'rotating every move would make the board unreadable',
+       );
 
   final int id;
   final String name;
@@ -41,6 +48,16 @@ class Stage {
   /// Twist: additional walls placed at random when the stage starts.
   final int randomBlockedCells;
 
+  /// Twist: one tile on the board is always a bomb, spawning with this many
+  /// moves on its counter. Merging it defuses it; letting the counter reach
+  /// zero ends the run. Keeping exactly one alive at a time is what makes the
+  /// twist a steady pressure rather than a pile-up.
+  final int? bombFuse;
+
+  /// Twist: the whole board turns a quarter turn every this many valid moves,
+  /// tiles and walls alike.
+  final int? rotateEveryMoves;
+
   /// Whether the stage is playable before anything has been cleared.
   final bool unlockedByDefault;
 
@@ -50,7 +67,23 @@ class Stage {
 
   bool get hasBlockedCells => blockedCells.isNotEmpty || randomBlockedCells > 0;
 
-  bool get hasTwist => hasMoveLimit || hasBlockedCells;
+  bool get hasBomb => bombFuse != null;
+
+  bool get rotates => rotateEveryMoves != null;
+
+  bool get hasTwist =>
+      hasMoveLimit || hasBlockedCells || hasBomb || rotates;
+
+  /// The move count a clean run should beat, for the "efficient" medal.
+  ///
+  /// A spawn is worth ~1.1 twos, so a target of N needs about N/2.2 spawns at
+  /// absolute best; par sits at 1.6x that, which a tidy run reaches and a
+  /// flailing one does not. Endless stages have no par.
+  int? get parMoves {
+    final target = targetTile;
+    if (target == null) return null;
+    return (target / 2.2 * 1.6).round();
+  }
 
   @override
   String toString() =>

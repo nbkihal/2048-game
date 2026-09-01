@@ -19,6 +19,7 @@ import '../widgets/score_board.dart';
 import '../widgets/swipe_detector.dart';
 import '../widgets/target_banner.dart';
 import '../widgets/ui_kit.dart';
+import 'endless_screen.dart';
 import 'settings_screen.dart';
 import 'stage_select_screen.dart';
 
@@ -67,23 +68,23 @@ class GameScreen extends ConsumerWidget {
                   child: PauseMenu(
                     skin: skin,
                     stageName: game.stage.name,
-                    stageLabel:
-                        'STAGE ${stageNumber(game.stage.id)} / ${kStages.length}',
+                    stageLabel: stageLabel(game.stage),
                     score: game.score,
                     soundOn: settings.soundOn,
                     hapticsOn: settings.hapticsOn,
-                    onToggleSound:
-                        ref.read(settingsProvider.notifier).toggleSound,
-                    onToggleHaptics:
-                        ref.read(settingsProvider.notifier).toggleHaptics,
+                    onToggleSound: ref
+                        .read(settingsProvider.notifier)
+                        .toggleSound,
+                    onToggleHaptics: ref
+                        .read(settingsProvider.notifier)
+                        .toggleHaptics,
                     onResume: notifier.resume,
                     onRestart: () {
                       notifier.restart();
                       notifier.resume();
                     },
-                    onSettings: () => Navigator.of(context).push(
-                      FadeThroughRoute(child: const SettingsScreen()),
-                    ),
+                    onSettings: () => Navigator.of(context)
+                        .push(FadeThroughRoute(child: const SettingsScreen())),
                     onQuit: leave,
                   ),
                 ),
@@ -190,7 +191,7 @@ class _GameBody extends StatelessWidget {
             targetTile: stage.targetTile,
             highestTile: game.board.highestValue,
             progress: targetProgress(game.board, stage.targetTile),
-            stageLabel: 'STAGE ${stageNumber(stage.id)} / ${kStages.length}',
+            stageLabel: stageLabel(stage),
           ),
           const SizedBox(height: AppSpacing.elementGap),
           Expanded(
@@ -263,9 +264,9 @@ class _Outcome extends ConsumerWidget {
     // many cleared stages is what this clear just opened up.
     final freshSkins = won
         ? kSkins
-            .where((s) => s.unlockAfterStagesCleared == stagesCleared)
-            .map((s) => s.name)
-            .toList()
+              .where((s) => s.unlockAfterStagesCleared == stagesCleared)
+              .map((s) => s.name)
+              .toList()
         : const <String>[];
 
     void act(OutcomeAction action) {
@@ -281,8 +282,14 @@ class _Outcome extends ConsumerWidget {
             FadeThroughRoute(child: GameScreen(stageId: next!.id)),
           );
         case OutcomeAction.stageSelect:
+          // An endless run belongs to its own picker; sending the player to
+          // the campaign ladder would be a different game.
           navigator.pushReplacement(
-            FadeThroughRoute(child: const StageSelectScreen()),
+            FadeThroughRoute(
+              child: isCampaignStage(stageId)
+                  ? const StageSelectScreen()
+                  : const EndlessScreen(),
+            ),
           );
       }
     }
@@ -300,6 +307,9 @@ class _Outcome extends ConsumerWidget {
       // going towards.
       canKeepGoing: !game.stage.isEndless && !game.keptGoing,
       lostToMoveLimit: !won && !hasMovesLeft(game.stage, game.movesUsed),
+      stageSelectLabel: isCampaignStage(stageId)
+          ? 'Stage select'
+          : 'Endless boards',
       onAction: act,
     );
   }

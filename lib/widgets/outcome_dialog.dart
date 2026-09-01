@@ -29,6 +29,7 @@ class OutcomeDialog extends StatefulWidget {
     required this.canKeepGoing,
     required this.onAction,
     required this.lostToMoveLimit,
+    this.stageSelectLabel = 'Stage select',
   });
 
   final Skin skin;
@@ -49,6 +50,10 @@ class OutcomeDialog extends StatefulWidget {
   /// Distinguishes "you ran out of moves" from "the board is stuck", which are
   /// very different lessons for the player.
   final bool lostToMoveLimit;
+
+  /// Label for the secondary way out — the campaign ladder for a stage, the
+  /// board picker for an endless run.
+  final String stageSelectLabel;
 
   final ValueChanged<OutcomeAction> onAction;
 
@@ -211,7 +216,7 @@ class _OutcomeDialogState extends State<OutcomeDialog>
           if (!widget.won) ...[
             const SizedBox(height: 10),
             OutlinedActionButton(
-              label: 'Stage select',
+              label: widget.stageSelectLabel,
               icon: Icons.grid_view_rounded,
               skin: skin,
               expand: true,

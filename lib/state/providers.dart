@@ -45,7 +45,7 @@ final progressProvider =
 final skinProvider = Provider<Skin>((ref) {
   final selected = skinById(ref.watch(settingsProvider).skinId);
   final cleared = ref.watch(progressProvider).clearedCount;
-  return isSkinUnlocked(selected, cleared) ? selected : kSkins.first;
+  return isSkinUnlocked(selected, cleared) ? selected : skinById(kDefaultSkinId);
 });
 
 /// One game per stage, discarded when the screen goes away.

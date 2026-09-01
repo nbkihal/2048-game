@@ -16,6 +16,35 @@ import '../core/skin.dart';
 /// the board, so a typical mid-game screen still reads as two colours.
 const List<Skin> kSkins = [
   Skin(
+    id: 'classic',
+    name: 'Classic',
+    tagline: 'THE ORIGINAL TAN',
+    stage: Color(0xFFFAF8EF),
+    boardSurface: Color(0xFFBBADA0),
+    cell: Color(0xFFCDC1B4),
+    wall: Color(0xFF8F7A66),
+    accent: Color(0xFFF67C5F),
+    accentSoft: Color(0xFFEDC22E),
+    onStage: Color(0xFF776E65),
+    onAccent: Color(0xFFF9F6F2),
+    brightness: Brightness.light,
+    ramp: [
+      TileStyle(Color(0xFFEEE4DA), Color(0xFF776E65)),
+      TileStyle(Color(0xFFEDE0C8), Color(0xFF776E65)),
+      TileStyle(Color(0xFFF2B179), Color(0xFFF9F6F2)),
+      TileStyle(Color(0xFFF59563), Color(0xFFF9F6F2)),
+      TileStyle(Color(0xFFF67C5F), Color(0xFFF9F6F2)),
+      TileStyle(Color(0xFFF65E3B), Color(0xFFF9F6F2)),
+      TileStyle(Color(0xFFEDCF72), Color(0xFFF9F6F2)),
+      TileStyle(Color(0xFFEDCC61), Color(0xFFF9F6F2)),
+      TileStyle(Color(0xFFEDC850), Color(0xFFF9F6F2)),
+      TileStyle(Color(0xFFEDC53F), Color(0xFFF9F6F2)),
+      TileStyle(Color(0xFFEDC22E), Color(0xFFF9F6F2)),
+      TileStyle(Color(0xFF3C3A32), Color(0xFFF9F6F2)),
+      TileStyle(Color(0xFF2E2C26), Color(0xFFF9F6F2)),
+    ],
+  ),
+  Skin(
     id: 'riso',
     name: 'Riso',
     tagline: 'THE HOUSE STYLE',
@@ -75,36 +104,6 @@ const List<Skin> kSkins = [
     ],
   ),
   Skin(
-    id: 'classic',
-    name: 'Classic',
-    tagline: 'THE ORIGINAL TAN',
-    unlockAfterStagesCleared: 3,
-    stage: Color(0xFFFAF8EF),
-    boardSurface: Color(0xFFBBADA0),
-    cell: Color(0xFFCDC1B4),
-    wall: Color(0xFF8F7A66),
-    accent: Color(0xFFF67C5F),
-    accentSoft: Color(0xFFEDC22E),
-    onStage: Color(0xFF776E65),
-    onAccent: Color(0xFFF9F6F2),
-    brightness: Brightness.light,
-    ramp: [
-      TileStyle(Color(0xFFEEE4DA), Color(0xFF776E65)),
-      TileStyle(Color(0xFFEDE0C8), Color(0xFF776E65)),
-      TileStyle(Color(0xFFF2B179), Color(0xFFF9F6F2)),
-      TileStyle(Color(0xFFF59563), Color(0xFFF9F6F2)),
-      TileStyle(Color(0xFFF67C5F), Color(0xFFF9F6F2)),
-      TileStyle(Color(0xFFF65E3B), Color(0xFFF9F6F2)),
-      TileStyle(Color(0xFFEDCF72), Color(0xFFF9F6F2)),
-      TileStyle(Color(0xFFEDCC61), Color(0xFFF9F6F2)),
-      TileStyle(Color(0xFFEDC850), Color(0xFFF9F6F2)),
-      TileStyle(Color(0xFFEDC53F), Color(0xFFF9F6F2)),
-      TileStyle(Color(0xFFEDC22E), Color(0xFFF9F6F2)),
-      TileStyle(Color(0xFF3C3A32), Color(0xFFF9F6F2)),
-      TileStyle(Color(0xFF2E2C26), Color(0xFFF9F6F2)),
-    ],
-  ),
-  Skin(
     id: 'midnight',
     name: 'Midnight',
     tagline: 'NEON AFTER DARK',
@@ -138,7 +137,7 @@ const List<Skin> kSkins = [
     id: 'bubblegum',
     name: 'Bubblegum',
     tagline: 'SWEET AND LOUD',
-    unlockAfterStagesCleared: 7,
+    unlockAfterStagesCleared: 9,
     stage: AppColors.bubblegumPink,
     boardSurface: Color(0xFFE39A92),
     cell: Color(0xFFEDA9A1),
@@ -168,7 +167,7 @@ const List<Skin> kSkins = [
     id: 'matcha',
     name: 'Matcha',
     tagline: 'DUSTY SAGE STACK',
-    unlockAfterStagesCleared: 9,
+    unlockAfterStagesCleared: 14,
     stage: AppColors.matchaCream,
     boardSurface: Color(0xFF93A877),
     cell: Color(0xFFA3B885),
@@ -197,7 +196,7 @@ const List<Skin> kSkins = [
 ];
 
 /// The skin used before the player has chosen one.
-const String kDefaultSkinId = 'riso';
+const String kDefaultSkinId = 'classic';
 
 Skin skinById(String id) =>
     kSkins.firstWhere((s) => s.id == id, orElse: () => kSkins.first);

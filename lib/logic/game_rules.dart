@@ -21,6 +21,10 @@ bool canMove(Board board) {
   return false;
 }
 
+/// Twist: true once a bomb's counter has run all the way down.
+bool hasDetonated(Board board) =>
+    board.tiles.any((tile) => tile.fuse != null && tile.fuse! <= 0);
+
 /// Twist: with a move budget, the player is only allowed to keep swiping while
 /// moves remain.
 bool hasMovesLeft(Stage stage, int movesUsed) {
@@ -43,6 +47,8 @@ GameStatus evaluateStatus({
   required int movesUsed,
 }) {
   if (hasReachedTarget(board, stage.targetTile)) return GameStatus.won;
+  // Twist: a bomb that ran out of moves ends the attempt on the spot.
+  if (hasDetonated(board)) return GameStatus.lost;
   // Truly stuck: no free cell and no merge available in any direction.
   if (!canMove(board)) return GameStatus.lost;
   // Twist: the budget ran out before the target was reached.

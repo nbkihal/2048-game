@@ -154,10 +154,11 @@ class _HowToPlayScreenState extends ConsumerState<HowToPlayScreen> {
                     skin: skin,
                     title: 'UNLOCKS',
                     lines: [
-                      'CLEARING A STAGE UNLOCKS THE NEXT ONE — '
-                          '${kStages.length} IN TOTAL.',
-                      'SKINS UNLOCK ON THE NUMBER OF STAGES YOU HAVE CLEARED. '
-                          'NOTHING COSTS MONEY AND NOTHING IS ONLINE.',
+                      'CLEARING A STAGE UNLOCKS THE NEXT — '
+                          '${kStages.length} IN TOTAL, ON BOARDS FROM 3×3 TO '
+                          '6×6. SKINS UNLOCK ON THE COUNT YOU HAVE CLEARED.',
+                      'ENDLESS MODE NEEDS NO UNLOCK: FOUR BOARD SIZES, NO '
+                          'TARGET, JUST A HIGH SCORE.',
                     ],
                     visual: _UnlockVisual(skin: skin),
                   ),
