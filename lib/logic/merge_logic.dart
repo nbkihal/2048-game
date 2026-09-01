@@ -88,11 +88,16 @@ LineResult slideLine(List<Tile?> line, {List<bool>? blocked}) {
       if (next != null && next.value == current.value) {
         // The leading tile keeps its id so it can animate into place; the
         // trailing tile travels to the same cell and is then removed.
+        //
+        // The product is a new tile, so it carries no fuse: merging a bomb is
+        // how the player defuses it, and that has to hold whichever of the two
+        // tiles was the bomb.
         final mergedValue = current.value * 2;
         result[write] = current.copyWith(
           value: mergedValue,
           isNew: false,
           mergedFrom: true,
+          clearFuse: true,
         );
         mergedTileIds.add(current.id);
         absorbed.add(AbsorbedTile(next, write));
