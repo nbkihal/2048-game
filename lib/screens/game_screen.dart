@@ -249,10 +249,10 @@ class _GameBody extends StatelessWidget {
               shufflesLeft: game.shufflesLeft,
               hammerArmed: false,
               onUndo: game.acceptsInput ? onUndo : null,
-              onHammer: game.acceptsTools && game.hammersLeft > 0
+              onHammer: game.acceptsTools && game.canHammer
                   ? onHammer
                   : null,
-              onShuffle: game.acceptsTools && game.shufflesLeft > 0
+              onShuffle: game.acceptsTools && game.canShuffle
                   ? onShuffle
                   : null,
               onPause: onPause,

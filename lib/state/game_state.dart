@@ -103,6 +103,10 @@ class GameState {
   /// Merges produced by the last move — the "chain" the popup celebrates.
   int get lastMergeCount => mergedTileIds.length;
 
+  bool get canHammer => hasCharges(hammersLeft);
+
+  bool get canShuffle => hasCharges(shufflesLeft);
+
   /// Whether this attempt is worth writing to disk: a finished or untouched
   /// attempt has nothing to resume.
   bool get isResumable => status.isPlayable && movesUsed > 0;

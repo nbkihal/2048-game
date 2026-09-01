@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../core/app_theme.dart';
+import '../core/constants.dart';
 import '../core/skin.dart';
 import 'ui_kit.dart';
 
@@ -104,7 +105,8 @@ class _Tool extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final spent = count != null && count == 0;
+    final unlimited = count == kUnlimitedCharges;
+    final spent = count == 0;
     final tint = active
         ? skin.onAccent
         : spent
@@ -114,7 +116,11 @@ class _Tool extends StatelessWidget {
     return Semantics(
       button: true,
       enabled: onPressed != null,
-      label: count == null ? label : '$label, $count left',
+      label: count == null
+          ? label
+          : unlimited
+          ? '$label, unlimited'
+          : '$label, $count left',
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: onPressed,
@@ -131,7 +137,11 @@ class _Tool extends StatelessWidget {
               Icon(icon, size: 20, color: tint),
               const SizedBox(height: 6),
               Text(
-                count == null ? label.toUpperCase() : '$count',
+                count == null
+                    ? label.toUpperCase()
+                    : unlimited
+                    ? '∞'
+                    : '$count',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: AppType.monoLabel.copyWith(color: tint, height: 1.0),

@@ -139,12 +139,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           ),
                         ),
                         const SizedBox(height: 10),
+                        // Half-width pills: the display face is wide enough
+                        // that a label plus an icon would ellipsize, so these
+                        // two carry the word alone.
                         Row(
                           children: [
                             Expanded(
                               child: OutlinedActionButton(
                                 label: 'Stages',
-                                icon: Icons.grid_view_rounded,
                                 skin: skin,
                                 expand: true,
                                 onPressed: () => go(const StageSelectScreen()),
@@ -154,7 +156,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             Expanded(
                               child: OutlinedActionButton(
                                 label: 'Endless',
-                                icon: Icons.all_inclusive_rounded,
                                 skin: skin,
                                 expand: true,
                                 color: skin.onStage,
@@ -254,15 +255,31 @@ class _DailyCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'DAILY CHALLENGE',
-                  style: AppType.body.copyWith(color: skin.onStage),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'DAILY CHALLENGE',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppType.body.copyWith(color: skin.onStage),
+                      ),
+                    ),
+                    Text(
+                      dailyLabel(DateTime.now()),
+                      style: AppType.monoLabel.copyWith(
+                        color: skin.onStage.withValues(alpha: 0.55),
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 6),
                 Text(
                   best > 0
-                      ? 'TODAY\'S BEST $best'
-                      : '${dailyLabel(DateTime.now())} — NOT PLAYED YET',
+                      ? "TODAY'S BEST $best"
+                      : 'NOT PLAYED YET',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: AppType.monoLabel.copyWith(
                     color: skin.onStage.withValues(alpha: 0.7),
                   ),

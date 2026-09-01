@@ -155,11 +155,15 @@ class _HowToPlayScreenState extends ConsumerState<HowToPlayScreen> {
                   _Card(
                     skin: skin,
                     title: 'TOOLS',
-                    lines: const [
-                      'EVERY RUN COMES WITH $kUndoAllowance UNDOS, '
-                          '$kHammerAllowance HAMMER AND $kShuffleAllowance '
-                          'SHUFFLE. THEY DO NOT COST A MOVE, AND THEY DO NOT '
-                          'COME BACK UNTIL YOU RESTART.',
+                    lines: [
+                      toolsAreUnlimited
+                          ? 'UNDO, HAMMER AND SHUFFLE ARE UNLIMITED. THEY '
+                                'COST NO MOVE, BURN NO FUSE AND SPEND NO '
+                                'BUDGET — THE GAME IS OFFLINE, SO NOTHING '
+                                'HERE IS RATIONED.'
+                          : 'EVERY RUN COMES WITH $kUndoAllowance UNDOS, '
+                                '$kHammerAllowance HAMMER AND '
+                                '$kShuffleAllowance SHUFFLE.',
                       'CLEAR A STAGE UNDER PAR, OR WITHOUT SPENDING AN UNDO, '
                           'AND IT KEEPS THE MEDAL FOR GOOD.',
                     ],
@@ -647,7 +651,10 @@ class _ToolsVisual extends StatelessWidget {
                     ),
                   ),
                 ),
-                MonoTag(label: '×$count', color: skin.accent),
+                MonoTag(
+                  label: count == kUnlimitedCharges ? '∞' : '×$count',
+                  color: skin.accent,
+                ),
               ],
             ),
           ),

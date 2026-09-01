@@ -77,15 +77,37 @@ const Duration kGhostLifetime = Duration(milliseconds: 150);
 // Power-ups
 // ---------------------------------------------------------------------------
 
-/// Rewinds granted per attempt. Undo is deliberately scarce: unlimited rewinds
-/// mean a run can never actually be lost, which cancels the game-over screen.
-const int kUndoAllowance = 3;
+/// A charge count that never runs down. Held as a sentinel rather than a huge
+/// number so the UI can say "∞" instead of printing a made-up figure.
+const int kUnlimitedCharges = -1;
+
+/// Rewinds granted per attempt.
+///
+/// Unlimited for now: the game is entirely offline, so there is nothing to sell
+/// and no reason to ration. Setting these back to small numbers (3 / 1 / 1) is
+/// all it takes to make the tools scarce again — every check goes through
+/// [hasCharges] and [spendCharge].
+const int kUndoAllowance = kUnlimitedCharges;
 
 /// Tile removals granted per attempt.
-const int kHammerAllowance = 1;
+const int kHammerAllowance = kUnlimitedCharges;
 
 /// Board re-deals granted per attempt.
-const int kShuffleAllowance = 1;
+const int kShuffleAllowance = kUnlimitedCharges;
+
+/// Whether a tool with [charges] left can still be used.
+bool hasCharges(int charges) => charges != 0;
+
+/// Spends one charge, leaving an unlimited tool untouched.
+int spendCharge(int charges) =>
+    charges == kUnlimitedCharges ? charges : charges - 1;
+
+/// True when the whole tool set is uncapped, which changes how it is described
+/// rather than how it behaves.
+bool get toolsAreUnlimited =>
+    kUndoAllowance == kUnlimitedCharges &&
+    kHammerAllowance == kUnlimitedCharges &&
+    kShuffleAllowance == kUnlimitedCharges;
 
 // ---------------------------------------------------------------------------
 // Score popup

@@ -91,7 +91,7 @@ class GameNotifier extends StateNotifier<GameState> {
     );
   }
 
-  bool get canUndo => _history.isNotEmpty && state.undosLeft > 0;
+  bool get canUndo => _history.isNotEmpty && hasCharges(state.undosLeft);
 
   /// Starts the stage over with a fresh board. Tools and rewinds come back with
   /// it — the allowance is per attempt, not per stage.
@@ -180,7 +180,7 @@ class GameNotifier extends StateNotifier<GameState> {
     // The rewind spends a charge and stains the run: the board goes back, the
     // fact that it was rewound does not.
     state = previous.copyWith(
-      undosLeft: state.undosLeft - 1,
+      undosLeft: spendCharge(state.undosLeft),
       usedUndo: true,
       hammersLeft: state.hammersLeft,
       shufflesLeft: state.shufflesLeft,
@@ -193,7 +193,7 @@ class GameNotifier extends StateNotifier<GameState> {
 
   /// Puts the board into tile-picking mode for the hammer.
   void armHammer() {
-    if (!state.acceptsTools || state.hammersLeft <= 0) return;
+    if (!state.acceptsTools || !state.canHammer) return;
     state = state.copyWith(armedTool: GameTool.hammer);
     audio.play(Sfx.tap);
   }
@@ -210,13 +210,13 @@ class GameNotifier extends StateNotifier<GameState> {
   /// spawns nothing. It can still open a jammed board, so the status is
   /// re-evaluated afterwards.
   void useHammer(int tileId) {
-    if (state.armedTool != GameTool.hammer || state.hammersLeft <= 0) return;
+    if (state.armedTool != GameTool.hammer || !state.canHammer) return;
 
     _pushHistory();
     final board = removeTile(state.board, tileId);
     state = state.copyWith(
       board: board,
-      hammersLeft: state.hammersLeft - 1,
+      hammersLeft: spendCharge(state.hammersLeft),
       disarmTool: true,
       mergedTileIds: const [],
       mergedAwayTiles: const [],
@@ -233,13 +233,13 @@ class GameNotifier extends StateNotifier<GameState> {
 
   /// Deals the same tiles back out across the board.
   void useShuffle() {
-    if (!state.acceptsTools || state.shufflesLeft <= 0) return;
+    if (!state.acceptsTools || !state.canShuffle) return;
 
     _pushHistory();
     final board = shuffleTiles(state.board, random);
     state = state.copyWith(
       board: board,
-      shufflesLeft: state.shufflesLeft - 1,
+      shufflesLeft: spendCharge(state.shufflesLeft),
       disarmTool: true,
       mergedTileIds: const [],
       mergedAwayTiles: const [],
