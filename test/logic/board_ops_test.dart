@@ -2,8 +2,10 @@ import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:game_2048/logic/board_ops.dart';
+import 'package:game_2048/logic/game_engine.dart';
 import 'package:game_2048/logic/game_rules.dart';
 import 'package:game_2048/models/board.dart';
+import 'package:game_2048/models/direction.dart';
 import 'package:game_2048/models/game_status.dart';
 import 'package:game_2048/models/position.dart';
 import 'package:game_2048/models/stage.dart';
@@ -37,10 +39,13 @@ void main() {
     });
 
     test('carries the walls round with the tiles', () {
-      final board = Board.fromValues([
-        [2, 0],
-        [0, 0],
-      ], blocked: {const Position(0, 0)});
+      final board = Board.fromValues(
+        [
+          [2, 0],
+          [0, 0],
+        ],
+        blocked: {const Position(0, 0)},
+      );
 
       final rotated = rotateBoardClockwise(board);
 
@@ -199,11 +204,14 @@ void main() {
     });
 
     test('never lands a tile on a wall', () {
-      final board = Board.fromValues([
-        [2, 4, 8],
-        [16, 32, 64],
-        [128, 0, 0],
-      ], blocked: {const Position(2, 2)});
+      final board = Board.fromValues(
+        [
+          [2, 4, 8],
+          [16, 32, 64],
+          [128, 0, 0],
+        ],
+        blocked: {const Position(2, 2)},
+      );
 
       final after = shuffleTiles(board, Random(3));
 
@@ -243,6 +251,65 @@ void main() {
 
       expect(after.tiles.where((t) => t.isBomb).length, 1);
       expect(after.tiles.firstWhere((t) => t.isBomb).fuse, 5);
+    });
+  });
+
+  group('merging a bomb', () {
+    // The merge product is a fresh tile, so the fuse must not ride along on it.
+    // Which of the pair carried the bomb depends on the swipe direction, and
+    // both orders have to defuse.
+    test('defuses it when the bomb is the tile that stays put', () {
+      final board = armBomb(
+        Board.fromValues([
+          [2, 2, 0, 0],
+          [0, 0, 0, 0],
+          [0, 0, 0, 0],
+          [0, 0, 0, 0],
+        ]),
+        1,
+        4,
+      );
+
+      final after = move(board, Direction.left).board;
+
+      expect(after.toValues()[0][0], 4);
+      expect(after.tiles.any((t) => t.isBomb), isFalse);
+      expect(hasDetonated(after), isFalse);
+    });
+
+    test('defuses it when the bomb is the tile that is absorbed', () {
+      final board = armBomb(
+        Board.fromValues([
+          [2, 2, 0, 0],
+          [0, 0, 0, 0],
+          [0, 0, 0, 0],
+          [0, 0, 0, 0],
+        ]),
+        2,
+        4,
+      );
+
+      final after = move(board, Direction.left).board;
+
+      expect(after.toValues()[0][0], 4);
+      expect(after.tiles.any((t) => t.isBomb), isFalse);
+    });
+
+    test('a bomb that only slides keeps ticking', () {
+      final board = armBomb(
+        Board.fromValues([
+          [0, 0, 0, 2],
+          [0, 0, 0, 0],
+          [0, 0, 0, 0],
+          [0, 0, 0, 0],
+        ]),
+        1,
+        4,
+      );
+
+      final after = tickFuses(move(board, Direction.left).board);
+
+      expect(after.tiles.single.fuse, 3);
     });
   });
 }

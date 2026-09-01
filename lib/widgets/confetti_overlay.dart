@@ -35,8 +35,10 @@ class _ConfettiOverlayState extends State<ConfettiOverlay>
     AppColors.boneWhite,
   ];
 
-  late final AnimationController _controller =
-      AnimationController(vsync: this, duration: widget.duration)..forward();
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: widget.duration,
+  )..forward();
 
   late final List<_Piece> _pieces = _makePieces();
 

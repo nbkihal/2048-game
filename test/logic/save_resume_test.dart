@@ -12,14 +12,18 @@ import 'package:game_2048/state/game_state.dart';
 
 void main() {
   GameState sample() => GameState(
-    stage: kStages[7], // Frozen Tile: has a wall to carry through the round trip
+    stage:
+        kStages[7], // Frozen Tile: has a wall to carry through the round trip
     board: armBomb(
-      Board.fromValues([
-        [2, 4, 0, 0],
-        [8, 16, 0, 0],
-        [0, 0, 32, 0],
-        [0, 0, 0, 64],
-      ], blocked: {const Position(3, 0)}),
+      Board.fromValues(
+        [
+          [2, 4, 0, 0],
+          [8, 16, 0, 0],
+          [0, 0, 32, 0],
+          [0, 0, 0, 64],
+        ],
+        blocked: {const Position(3, 0)},
+      ),
       3,
       6,
     ),
@@ -75,11 +79,13 @@ void main() {
       expect(after.armedBomb!.fuse, 6);
     });
 
-    test('a stage that no longer exists loads as nothing rather than crashing',
-        () {
-      final json = sample().toJson()..['stage'] = 9999;
-      expect(GameState.fromJson(json, best: 0), isNull);
-    });
+    test(
+      'a stage that no longer exists loads as nothing rather than crashing',
+      () {
+        final json = sample().toJson()..['stage'] = 9999;
+        expect(GameState.fromJson(json, best: 0), isNull);
+      },
+    );
 
     test('a board whose size no longer matches its stage is rejected', () {
       final json = sample().toJson();
@@ -94,10 +100,7 @@ void main() {
     test('only an attempt in progress is worth resuming', () {
       expect(sample().isResumable, isTrue);
       expect(sample().copyWith(movesUsed: 0).isResumable, isFalse);
-      expect(
-        sample().copyWith(status: GameStatus.lost).isResumable,
-        isFalse,
-      );
+      expect(sample().copyWith(status: GameStatus.lost).isResumable, isFalse);
       expect(sample().copyWith(status: GameStatus.won).isResumable, isFalse);
     });
   });

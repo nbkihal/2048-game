@@ -86,8 +86,7 @@ class Tile {
       other.fuse == fuse;
 
   @override
-  int get hashCode =>
-      Object.hash(id, value, row, col, isNew, mergedFrom, fuse);
+  int get hashCode => Object.hash(id, value, row, col, isNew, mergedFrom, fuse);
 
   @override
   String toString() =>

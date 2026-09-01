@@ -31,7 +31,8 @@ class TileView extends StatefulWidget {
   State<TileView> createState() => _TileViewState();
 }
 
-class _TileViewState extends State<TileView> with SingleTickerProviderStateMixin {
+class _TileViewState extends State<TileView>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late Animation<double> _scale;
 
@@ -55,7 +56,8 @@ class _TileViewState extends State<TileView> with SingleTickerProviderStateMixin
     super.didUpdateWidget(oldWidget);
     // The same tile id merging again means a fresh pop, so compare the value
     // rather than the flag alone.
-    final merged = widget.tile.mergedFrom &&
+    final merged =
+        widget.tile.mergedFrom &&
         (!oldWidget.tile.mergedFrom ||
             oldWidget.tile.value != widget.tile.value);
     if (merged) _playPop();
@@ -65,9 +67,10 @@ class _TileViewState extends State<TileView> with SingleTickerProviderStateMixin
     _controller
       ..stop()
       ..duration = kSpawnDuration;
-    _scale = Tween<double>(begin: kSpawnStartScale, end: 1).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOutBack),
-    );
+    _scale = Tween<double>(
+      begin: kSpawnStartScale,
+      end: 1,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
     _controller.forward(from: 0);
   }
 
@@ -77,13 +80,17 @@ class _TileViewState extends State<TileView> with SingleTickerProviderStateMixin
       ..duration = kMergePopDuration;
     _scale = TweenSequence<double>([
       TweenSequenceItem(
-        tween: Tween<double>(begin: 1.0, end: kMergePopScale)
-            .chain(CurveTween(curve: Curves.easeOut)),
+        tween: Tween<double>(
+          begin: 1.0,
+          end: kMergePopScale,
+        ).chain(CurveTween(curve: Curves.easeOut)),
         weight: 45,
       ),
       TweenSequenceItem(
-        tween: Tween<double>(begin: kMergePopScale, end: 1.0)
-            .chain(CurveTween(curve: Curves.easeIn)),
+        tween: Tween<double>(
+          begin: kMergePopScale,
+          end: 1.0,
+        ).chain(CurveTween(curve: Curves.easeIn)),
         weight: 55,
       ),
     ]).animate(_controller);

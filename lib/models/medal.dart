@@ -29,8 +29,10 @@ extension MedalX on Medal {
 int packMedals(Set<Medal> medals) =>
     medals.fold(0, (bits, medal) => bits | medal.bit);
 
-Set<Medal> unpackMedals(int bits) =>
-    {for (final medal in Medal.values) if (bits & medal.bit != 0) medal};
+Set<Medal> unpackMedals(int bits) => {
+  for (final medal in Medal.values)
+    if (bits & medal.bit != 0) medal,
+};
 
 /// What an attempt earned. [parMoves] is `null` on a stage with no target, in
 /// which case there is nothing to be efficient about.

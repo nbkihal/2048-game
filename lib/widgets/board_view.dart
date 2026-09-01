@@ -93,7 +93,8 @@ class _BoardViewState extends State<BoardView> {
           // Solve for the cell size: N cells, N-1 gaps and two outer paddings,
           // all expressed as fractions of the cell so every grid size looks the
           // same.
-          final units = size + (size - 1) * kCellGapRatio + 2 * kBoardPaddingRatio;
+          final units =
+              size + (size - 1) * kCellGapRatio + 2 * kBoardPaddingRatio;
           final cell = constraints.maxWidth / units;
           final gap = cell * kCellGapRatio;
           final pad = cell * kBoardPaddingRatio;
@@ -216,12 +217,7 @@ class _PositionedTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final view = TileView(
-      tile: tile,
-      skin: skin,
-      size: cell,
-      picking: picking,
-    );
+    final view = TileView(tile: tile, skin: skin, size: cell, picking: picking);
 
     return AnimatedPositioned(
       duration: kSlideDuration,

@@ -71,7 +71,10 @@ class _PauseMenuState extends State<PauseMenu>
               padding: const EdgeInsets.all(AppSpacing.s20),
               child: ScaleTransition(
                 scale: Tween<double>(begin: 0.94, end: 1).animate(
-                  CurvedAnimation(parent: _controller, curve: Curves.easeOutBack),
+                  CurvedAnimation(
+                    parent: _controller,
+                    curve: Curves.easeOutBack,
+                  ),
                 ),
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 420),
@@ -85,7 +88,10 @@ class _PauseMenuState extends State<PauseMenu>
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            MonoTag(label: widget.stageLabel, color: skin.onStage),
+                            MonoTag(
+                              label: widget.stageLabel,
+                              color: skin.onStage,
+                            ),
                             MonoTag(
                               label: '${widget.score} PTS',
                               color: skin.accent,
@@ -95,7 +101,9 @@ class _PauseMenuState extends State<PauseMenu>
                         const SizedBox(height: AppSpacing.s20),
                         Text(
                           'PAUSED',
-                          style: AppType.subheading.copyWith(color: skin.accent),
+                          style: AppType.subheading.copyWith(
+                            color: skin.accent,
+                          ),
                         ),
                         const SizedBox(height: 6),
                         Text(

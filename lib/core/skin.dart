@@ -79,19 +79,16 @@ class Skin {
   /// Fill for the primary pill action. DESIGN.md specifies a cream pill on the
   /// violet stage; on a light-stage skin the same cream would disappear, so the
   /// rule is "maximum contrast against the stage" rather than a fixed colour.
-  Color get pillFill => brightness == Brightness.dark
-      ? AppColors.boneWhite
-      : AppColors.inkBlack;
+  Color get pillFill =>
+      brightness == Brightness.dark ? AppColors.boneWhite : AppColors.inkBlack;
 
-  Color get onPill => brightness == Brightness.dark
-      ? AppColors.pureBlack
-      : AppColors.boneWhite;
+  Color get onPill =>
+      brightness == Brightness.dark ? AppColors.pureBlack : AppColors.boneWhite;
 
   /// Scrim behind modal surfaces (pause menu, dialogs).
   Color get scrim => brightness == Brightness.dark
       ? AppColors.pureBlack.withValues(alpha: 0.62)
       : AppColors.inkBlack.withValues(alpha: 0.45);
-
 
   /// The style for a tile of [value].
   ///

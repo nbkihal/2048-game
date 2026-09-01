@@ -26,13 +26,13 @@ class Settings {
 
 class SettingsNotifier extends StateNotifier<Settings> {
   SettingsNotifier(this._store, this._audio)
-      : super(
-          Settings(
-            soundOn: _store.soundOn,
-            hapticsOn: _store.hapticsOn,
-            skinId: _store.skinId ?? kDefaultSkinId,
-          ),
-        ) {
+    : super(
+        Settings(
+          soundOn: _store.soundOn,
+          hapticsOn: _store.hapticsOn,
+          skinId: _store.skinId ?? kDefaultSkinId,
+        ),
+      ) {
     _syncAudio();
   }
 

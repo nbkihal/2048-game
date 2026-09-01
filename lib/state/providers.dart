@@ -51,7 +51,9 @@ final progressProvider =
 final skinProvider = Provider<Skin>((ref) {
   final selected = skinById(ref.watch(settingsProvider).skinId);
   final cleared = ref.watch(progressProvider).clearedCount;
-  return isSkinUnlocked(selected, cleared) ? selected : skinById(kDefaultSkinId);
+  return isSkinUnlocked(selected, cleared)
+      ? selected
+      : skinById(kDefaultSkinId);
 });
 
 /// The run left open by a previous session, or `null` when there is none.

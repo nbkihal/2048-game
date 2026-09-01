@@ -71,8 +71,7 @@ class Stage {
 
   bool get rotates => rotateEveryMoves != null;
 
-  bool get hasTwist =>
-      hasMoveLimit || hasBlockedCells || hasBomb || rotates;
+  bool get hasTwist => hasMoveLimit || hasBlockedCells || hasBomb || rotates;
 
   /// The move count a clean run should beat, for the "efficient" medal.
   ///

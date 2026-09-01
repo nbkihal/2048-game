@@ -87,10 +87,7 @@ class _ScorePopupState extends State<ScorePopup>
             if (chain) ...[
               const SizedBox(width: 8),
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 8,
-                  vertical: 5,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
                 decoration: BoxDecoration(
                   color: skin.accent,
                   borderRadius: AppRadius.pillRadius,

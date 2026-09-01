@@ -78,7 +78,8 @@ class StageSelectScreen extends ConsumerWidget {
                     skin: skin,
                     unlocked: progress.isUnlocked(stage),
                     cleared: progress.isCleared(stage.id),
-                    isNext: stage.id == furthest.id &&
+                    isNext:
+                        stage.id == furthest.id &&
                         !progress.isCleared(stage.id),
                     bestScore: progress.bestScoreFor(stage.id),
                     medals: progress.medalsFor(stage.id),
@@ -86,9 +87,7 @@ class StageSelectScreen extends ConsumerWidget {
                     onTap: () {
                       audio.play(Sfx.tap);
                       Navigator.of(context).push(
-                        FadeThroughRoute(
-                          child: GameScreen(stageId: stage.id),
-                        ),
+                        FadeThroughRoute(child: GameScreen(stageId: stage.id)),
                       );
                     },
                   );
@@ -186,10 +185,7 @@ class _StageCard extends StatelessWidget {
                         color: ink,
                       ),
                       if (stage.hasMoveLimit)
-                        MonoTag(
-                          label: '${stage.moveLimit} MOVES',
-                          color: ink,
-                        ),
+                        MonoTag(label: '${stage.moveLimit} MOVES', color: ink),
                       if (stage.hasBlockedCells)
                         MonoTag(label: 'FROZEN CELL', color: ink),
                       if (bestScore > 0)
@@ -239,13 +235,14 @@ class _StageNumber extends StatelessWidget {
         borderRadius: AppRadius.cardRadius,
       ),
       child: locked
-          ? Icon(Icons.lock_rounded, size: 20, color: ink.withValues(alpha: 0.8))
+          ? Icon(
+              Icons.lock_rounded,
+              size: 20,
+              color: ink.withValues(alpha: 0.8),
+            )
           : cleared
-              ? Icon(Icons.check_rounded, size: 24, color: skin.onAccent)
-              : Text(
-                  '$number',
-                  style: AppType.bodyLarge.copyWith(color: ink),
-                ),
+          ? Icon(Icons.check_rounded, size: 24, color: skin.onAccent)
+          : Text('$number', style: AppType.bodyLarge.copyWith(color: ink)),
     );
   }
 }

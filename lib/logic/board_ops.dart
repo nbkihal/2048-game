@@ -50,7 +50,9 @@ Board tickFuses(Board board) {
   return board.copyWith(
     cells: [
       for (final tile in board.cells)
-        tile == null || !tile.isBomb ? tile : tile.copyWith(fuse: tile.fuse! - 1),
+        tile == null || !tile.isBomb
+            ? tile
+            : tile.copyWith(fuse: tile.fuse! - 1),
     ],
   );
 }

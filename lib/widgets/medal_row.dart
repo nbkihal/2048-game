@@ -42,7 +42,11 @@ class MedalRow extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(right: 6),
             child: showLabels
-                ? _Labelled(medal: medal, has: earned.contains(medal), color: color)
+                ? _Labelled(
+                    medal: medal,
+                    has: earned.contains(medal),
+                    color: color,
+                  )
                 : _Pip(
                     medal: medal,
                     has: earned.contains(medal),

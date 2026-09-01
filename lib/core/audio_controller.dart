@@ -24,10 +24,10 @@ enum Sfx {
 /// audible without ever allocating during play.
 class AudioController {
   AudioController({int poolSize = 4})
-      : _players = List.generate(
-          poolSize,
-          (_) => AudioPlayer()..setReleaseMode(ReleaseMode.stop),
-        );
+    : _players = List.generate(
+        poolSize,
+        (_) => AudioPlayer()..setReleaseMode(ReleaseMode.stop),
+      );
 
   /// A controller that owns no players at all. Widget tests run without the
   /// audio plugin, and a game must never depend on sound to make progress.

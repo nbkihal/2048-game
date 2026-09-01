@@ -86,8 +86,7 @@ class Persistence {
   /// force-close always resumes on a board the player actually saw.
   String? get savedRun => _prefs.getString(_keySavedRun);
 
-  Future<void> setSavedRun(String json) =>
-      _prefs.setString(_keySavedRun, json);
+  Future<void> setSavedRun(String json) => _prefs.setString(_keySavedRun, json);
 
   Future<void> clearSavedRun() => _prefs.remove(_keySavedRun);
 
@@ -95,8 +94,7 @@ class Persistence {
 
   /// Best score on the daily board identified by [seed]. A new day reports 0
   /// rather than carrying yesterday's number forward.
-  int dailyBestFor(int seed) =>
-      _prefs.getInt(_keyDailySeed) == seed
+  int dailyBestFor(int seed) => _prefs.getInt(_keyDailySeed) == seed
       ? (_prefs.getInt(_keyDailyBest) ?? 0)
       : 0;
 

@@ -62,7 +62,8 @@ class _SwipeDetectorState extends State<SwipeDetector> {
   }
 
   KeyEventResult _onKey(FocusNode node, KeyEvent event) {
-    if (!widget.enabled || event is! KeyDownEvent) return KeyEventResult.ignored;
+    if (!widget.enabled || event is! KeyDownEvent)
+      return KeyEventResult.ignored;
     final direction = _keyMap[event.logicalKey];
     if (direction == null) return KeyEventResult.ignored;
     widget.onSwipe(direction);
