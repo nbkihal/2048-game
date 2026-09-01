@@ -56,7 +56,11 @@ const double kSwipeThreshold = 24.0;
 // ---------------------------------------------------------------------------
 
 /// How many moves back the undo stack reaches.
-const int kUndoHistoryLimit = 20;
+///
+/// Deep, because the charges are uncapped: a 20-move ceiling would quietly
+/// make "unlimited undo" mean "twenty undos". A snapshot is a board of at most
+/// 36 tiles, so a hundred of them costs nothing worth counting.
+const int kUndoHistoryLimit = 100;
 
 // ---------------------------------------------------------------------------
 // Board layout

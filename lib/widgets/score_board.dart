@@ -52,11 +52,18 @@ class StatBlock extends StatelessWidget {
               opacity: animation,
               child: ScaleTransition(scale: animation, child: child),
             ),
-            child: Text(
-              value,
+            // Targets run to 8192, so a score can reach six digits in a block
+            // a third of the screen wide. Shrinking beats clipping.
+            child: FittedBox(
               key: ValueKey(value),
-              style: AppType.bodyLarge.copyWith(
-                color: highlight ? skin.onAccent : ink,
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: Text(
+                value,
+                maxLines: 1,
+                style: AppType.bodyLarge.copyWith(
+                  color: highlight ? skin.onAccent : ink,
+                ),
               ),
             ),
           ),

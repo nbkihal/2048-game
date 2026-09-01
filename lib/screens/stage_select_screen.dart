@@ -187,7 +187,17 @@ class _StageCard extends StatelessWidget {
                       if (stage.hasMoveLimit)
                         MonoTag(label: '${stage.moveLimit} MOVES', color: ink),
                       if (stage.hasBlockedCells)
-                        MonoTag(label: 'FROZEN CELL', color: ink),
+                        MonoTag(label: _wallsLabel(stage), color: ink),
+                      if (stage.hasBomb)
+                        MonoTag(
+                          label: 'BOMB — FUSE ${stage.bombFuse}',
+                          color: ink,
+                        ),
+                      if (stage.rotates)
+                        MonoTag(
+                          label: 'TURNS EVERY ${stage.rotateEveryMoves}',
+                          color: ink,
+                        ),
                       if (bestScore > 0)
                         MonoTag(
                           label: 'BEST $bestScore',
@@ -245,4 +255,11 @@ class _StageNumber extends StatelessWidget {
           : Text('$number', style: AppType.bodyLarge.copyWith(color: ink)),
     );
   }
+}
+
+/// "FROZEN CELL" or "2 FROZEN CELLS" — the count matters, because a second
+/// wall changes the stage far more than the first one does.
+String _wallsLabel(Stage stage) {
+  final walls = stage.blockedCells.length + stage.randomBlockedCells;
+  return walls == 1 ? 'FROZEN CELL' : '$walls FROZEN CELLS';
 }

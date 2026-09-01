@@ -12,6 +12,18 @@ import 'daily.dart';
 /// that a 6x6 rewards, so changing the grid changes the puzzle far more than
 /// raising the target does.
 ///
+/// **On the size of the targets.** The ladder climbs 128 -> 8192, a 64x range.
+/// It can afford to: the power-ups are uncapped, so a run is very hard to
+/// actually lose, and the challenge has to live in the length and shape of the
+/// climb instead. What a target really buys is *time on the board* — every
+/// doubling is roughly twice the run — so the early stages stay short enough to
+/// teach and the late ones are long enough to be worth finishing.
+///
+/// A target is only reachable if the whole descending chain fits on the board
+/// with a cell to spare: 2048 needs eleven cells and is tight on a 4x4, while
+/// 8192 needs thirteen and only breathes on a 6x6. That, not the number itself,
+/// is what decides which grid a target belongs on.
+///
 /// Move limits are set from the arithmetic of the target: a spawn is worth 1.1
 /// "twos" on average, so reaching a target of N needs roughly N/2.2 spawns at
 /// best. Budgets sit near twice that, which leaves real room to play while
@@ -22,7 +34,7 @@ const List<Stage> kStages = [
     name: 'First Steps',
     subtitle: 'LEARN THE SWIPE',
     gridSize: 4,
-    targetTile: 64,
+    targetTile: 128,
     unlockedByDefault: true,
   ),
   Stage(
@@ -30,50 +42,50 @@ const List<Stage> kStages = [
     name: 'Warming Up',
     subtitle: 'SAME BOARD, BIGGER ASK',
     gridSize: 4,
-    targetTile: 128,
+    targetTile: 256,
   ),
   Stage(
     id: 3,
     name: 'Getting Serious',
     subtitle: 'KEEP THE BIG ONE IN A CORNER',
     gridSize: 4,
-    targetTile: 256,
+    targetTile: 512,
   ),
   Stage(
     id: 4,
     name: 'Tight Space',
     subtitle: 'NINE CELLS. NO MERCY.',
     gridSize: 3,
-    targetTile: 128,
+    targetTile: 256,
   ),
   Stage(
     id: 5,
     name: 'The Classic',
     subtitle: 'HALF WAY TO THE REAL THING',
     gridSize: 4,
-    targetTile: 512,
+    targetTile: 1024,
   ),
   Stage(
     id: 6,
     name: 'Move Budget',
     subtitle: 'EVERY SWIPE COUNTS',
     gridSize: 4,
-    targetTile: 256,
-    moveLimit: 220,
+    targetTile: 512,
+    moveLimit: 480,
   ),
   Stage(
     id: 7,
     name: 'Big Board',
     subtitle: 'MORE ROOM, LONGER GAME',
     gridSize: 5,
-    targetTile: 1024,
+    targetTile: 2048,
   ),
   Stage(
     id: 8,
     name: 'Frozen Tile',
     subtitle: 'ONE CELL IS DEAD WEIGHT',
     gridSize: 4,
-    targetTile: 512,
+    targetTile: 1024,
     randomBlockedCells: 1,
   ),
   Stage(
@@ -81,14 +93,14 @@ const List<Stage> kStages = [
     name: 'Wide Open',
     subtitle: 'THIRTY-SIX CELLS TO FILL',
     gridSize: 6,
-    targetTile: 2048,
+    targetTile: 4096,
   ),
   Stage(
     id: 10,
     name: 'Twin Walls',
     subtitle: 'TWO CELLS GONE, PICKED AT RANDOM',
     gridSize: 4,
-    targetTile: 512,
+    targetTile: 1024,
     randomBlockedCells: 2,
   ),
   Stage(
@@ -98,54 +110,57 @@ const List<Stage> kStages = [
     // the stacking strategy lives, and taking it away is unfair, not hard.
     subtitle: 'TWO FIXED WALLS, DEAD CENTRE',
     gridSize: 4,
-    targetTile: 512,
+    targetTile: 1024,
     blockedCells: [Position(1, 1), Position(2, 2)],
   ),
   Stage(
     id: 12,
-    name: 'Ice Field',
-    subtitle: 'A BIG BOARD WITH TWO HOLES IN IT',
-    gridSize: 5,
-    targetTile: 1024,
-    randomBlockedCells: 2,
-  ),
-  Stage(
-    id: 13,
-    name: 'Countdown',
-    subtitle: 'MERGE THE BOMB BEFORE IT LANDS',
-    gridSize: 4,
-    targetTile: 512,
-    bombFuse: 14,
-  ),
-  Stage(
-    id: 14,
-    name: 'Marathon',
-    subtitle: 'A LONG RUN ON A SHORT LEASH',
-    gridSize: 5,
-    targetTile: 1024,
-    moveLimit: 700,
-  ),
-  Stage(
-    id: 15,
-    name: 'Carousel',
-    subtitle: 'THE BOARD TURNS UNDER YOU',
-    gridSize: 5,
-    targetTile: 1024,
-    rotateEveryMoves: 8,
-  ),
-  Stage(
-    id: 16,
     name: 'The 2048',
     subtitle: 'THE ONE EVERYONE TALKS ABOUT',
     gridSize: 4,
     targetTile: 2048,
   ),
   Stage(
+    id: 13,
+    name: 'Countdown',
+    subtitle: 'MERGE THE BOMB BEFORE IT LANDS',
+    gridSize: 4,
+    targetTile: 2048,
+    bombFuse: 16,
+  ),
+  Stage(
+    id: 14,
+    name: 'Ice Field',
+    subtitle: 'A BIG BOARD WITH TWO HOLES IN IT',
+    gridSize: 5,
+    targetTile: 4096,
+    randomBlockedCells: 2,
+  ),
+  Stage(
+    id: 15,
+    name: 'Carousel',
+    // Two twists at once: the turn alone is disorienting, and the wall turning
+    // with it means the dead cell is never where it was last time.
+    subtitle: 'THE BOARD TURNS UNDER YOU',
+    gridSize: 5,
+    targetTile: 4096,
+    randomBlockedCells: 1,
+    rotateEveryMoves: 10,
+  ),
+  Stage(
+    id: 16,
+    name: 'Marathon',
+    subtitle: 'A LONG RUN ON A SHORT LEASH',
+    gridSize: 5,
+    targetTile: 4096,
+    moveLimit: 3400,
+  ),
+  Stage(
     id: 17,
     name: 'Six Pack',
     subtitle: 'THE BIGGEST BOARD, THE BIGGEST TILE',
     gridSize: 6,
-    targetTile: 4096,
+    targetTile: 8192,
   ),
 ];
 
