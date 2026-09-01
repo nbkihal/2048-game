@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:game_2048/data/skins_data.dart';
 import 'package:game_2048/data/stages_data.dart';
 
 /// The stage tables are pure data, and every screen trusts their shape. These
@@ -21,7 +22,20 @@ void main() {
     });
 
     test('covers a spread of board sizes', () {
-      expect(kStages.map((s) => s.gridSize).toSet(), {3, 4, 5, 6});
+      // No 3x3: the smallest target on the ladder is 1024, whose chain needs
+      // ten cells and a 3x3 only has nine. That board lives in Endless.
+      expect(kStages.map((s) => s.gridSize).toSet(), {4, 5, 6});
+      expect(kEndlessStages.map((s) => s.gridSize), contains(3));
+    });
+
+    test('nothing on the ladder asks for less than 2^10', () {
+      for (final stage in kStages) {
+        expect(
+          stage.targetTile,
+          greaterThanOrEqualTo(1024),
+          reason: '${stage.name} is below the floor',
+        );
+      }
     });
 
     test('a move budget leaves room to reach the target', () {
@@ -72,10 +86,26 @@ void main() {
       expect(targets.last, targets.reduce((a, b) => a > b ? a : b));
     });
 
-    test('the climb is long enough to be worth playing', () {
-      // The whole point of the rescale: the finale is a couple of orders of
-      // magnitude past the tutorial, so the ladder has somewhere to go.
-      expect(kStages.last.targetTile! ~/ kStages.first.targetTile!, 64);
+    test('the climb spans 2^10 to 2^15', () {
+      expect(kStages.first.targetTile, 1024);
+      expect(kStages.last.targetTile, 32768);
+      expect(kStages.last.targetTile! ~/ kStages.first.targetTile!, 32);
+    });
+
+    test('every target has a colour of its own in every skin', () {
+      // Past the end of a ramp `styleFor` recycles its tail, which would paint
+      // 16384 in the 2048 colour. The ramps have to reach the ladder's ceiling.
+      final ceiling = kStages
+          .map((s) => s.targetTile!)
+          .reduce((a, b) => a > b ? a : b);
+      final rungs = _chainLength(ceiling);
+      for (final skin in kSkins) {
+        expect(
+          skin.ramp.length,
+          greaterThanOrEqualTo(rungs),
+          reason: '${skin.name} runs out of colours before $ceiling',
+        );
+      }
     });
   });
 

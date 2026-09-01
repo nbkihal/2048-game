@@ -135,7 +135,7 @@ class _HowToPlayScreenState extends ConsumerState<HowToPlayScreen> {
                       'EVERY STAGE ASKS FOR ONE TILE — '
                           '${kStages.first.targetTile} FIRST, THEN HIGHER. '
                           'BUILD IT AND THE STAGE IS CLEARED.',
-                      'LATER STAGES ADD TWISTS: SMALLER AND BIGGER BOARDS, '
+                      'LATER STAGES ADD TWISTS: BIGGER BOARDS, '
                           'MOVE BUDGETS, FROZEN CELLS, A TICKING BOMB TILE, '
                           'AND A BOARD THAT TURNS UNDER YOU.',
                     ],
@@ -174,9 +174,9 @@ class _HowToPlayScreenState extends ConsumerState<HowToPlayScreen> {
                     title: 'UNLOCKS',
                     lines: [
                       'CLEARING A STAGE UNLOCKS THE NEXT — '
-                          '${kStages.length} IN TOTAL, ON BOARDS FROM 3×3 TO '
+                          '${kStages.length} IN TOTAL, ON BOARDS UP TO '
                           '6×6. SKINS UNLOCK ON THE COUNT YOU HAVE CLEARED.',
-                      'ENDLESS MODE NEEDS NO UNLOCK: FOUR BOARD SIZES, NO '
+                      'ENDLESS MODE NEEDS NO UNLOCK: FOUR BOARD SIZES DOWN TO 3×3, NO '
                           'TARGET, JUST A HIGH SCORE.',
                     ],
                     visual: _UnlockVisual(skin: skin),

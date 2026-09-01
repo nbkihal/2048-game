@@ -42,6 +42,8 @@ const List<Skin> kSkins = [
       TileStyle(Color(0xFFEDC22E), Color(0xFFF9F6F2)),
       TileStyle(Color(0xFF3C3A32), Color(0xFFF9F6F2)),
       TileStyle(Color(0xFF2E2C26), Color(0xFFF9F6F2)),
+      TileStyle(Color(0xFF7A4E9E), Color(0xFFF9F6F2)), // 16384
+      TileStyle(Color(0xFF2A7A6B), Color(0xFFF9F6F2)), // 32768
     ],
   ),
   Skin(
@@ -71,6 +73,8 @@ const List<Skin> kSkins = [
       TileStyle(AppColors.pureBlack, AppColors.hiVisYellow), // 2048
       TileStyle(AppColors.lilacShadow, AppColors.hiVisYellow), // 4096
       TileStyle(AppColors.duskViolet, AppColors.pureBlack), // 8192
+      TileStyle(Color(0xFF3A2E6E), AppColors.hiVisYellow), // 16384
+      TileStyle(Color(0xFF12122A), AppColors.matchaCream), // 32768
     ],
   ),
   Skin(
@@ -101,6 +105,8 @@ const List<Skin> kSkins = [
       TileStyle(AppColors.inkBlack, AppColors.hiVisYellow),
       TileStyle(AppColors.pureBlack, AppColors.butteryYellow),
       TileStyle(AppColors.pureBlack, AppColors.bubblegumPink),
+      TileStyle(Color(0xFF3B2A5C), AppColors.boneWhite), // 16384
+      TileStyle(Color(0xFF123246), AppColors.matchaCream), // 32768
     ],
   ),
   Skin(
@@ -131,6 +137,8 @@ const List<Skin> kSkins = [
       TileStyle(Color(0xFFB5F936), AppColors.pureBlack),
       TileStyle(Color(0xFF36F9C1), AppColors.pureBlack),
       TileStyle(Color(0xFF36C1F9), AppColors.pureBlack),
+      TileStyle(Color(0xFF6C36F9), AppColors.boneWhite), // 16384
+      TileStyle(Color(0xFFF936C1), AppColors.pureBlack), // 32768
     ],
   ),
   Skin(
@@ -161,6 +169,8 @@ const List<Skin> kSkins = [
       TileStyle(AppColors.inkBlack, AppColors.bubblegumPink),
       TileStyle(AppColors.pureBlack, AppColors.hiVisYellow),
       TileStyle(AppColors.pureBlack, AppColors.matchaCream),
+      TileStyle(Color(0xFF4A1F3D), AppColors.bubblegumPink), // 16384
+      TileStyle(Color(0xFF20303F), AppColors.butteryYellow), // 32768
     ],
   ),
   Skin(
@@ -191,6 +201,8 @@ const List<Skin> kSkins = [
       TileStyle(AppColors.firecrackerRed, AppColors.boneWhite),
       TileStyle(AppColors.inkBlack, AppColors.matchaCream),
       TileStyle(AppColors.pureBlack, AppColors.hiVisYellow),
+      TileStyle(Color(0xFF243B18), AppColors.matchaCream), // 16384
+      TileStyle(Color(0xFF0E1A26), AppColors.butteryYellow), // 32768
     ],
   ),
 ];
